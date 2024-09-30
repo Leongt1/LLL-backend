@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
       select: false, // Do not return password by default
     },
+    phoneNumber: {
+      type: Number,
+      required: [false, 'Please add Number'],
+      minlength: 10
+    }
   },
   { timestamps: true }
 );
