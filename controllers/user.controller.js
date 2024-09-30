@@ -17,19 +17,29 @@ const generateToken = (id) => {
 // @route   POST /api/signup
 // @access  Public
 const signupUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstname, lastname, email, password, confirmPassword } = req.body;
+
+  // Check if all fields are provided
+  if (!firstname || !lastname || !email || !password || !confirmPassword) {
+    return res.status(400).json({ message: 'Please provide all required fields' });
+  }
+
+  // Check if password and confirmPassword match
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: 'Passwords do not match' });
+  }
 
   try {
     // Check if user exists
-    let user = await User.findOne({ email });
-
-    if (user) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // Create user
-    user = await User.create({
-      name,
+    const user = await User.create({
+      firstname,
+      lastname,
       email,
       password,
     });
@@ -38,10 +48,14 @@ const signupUser = async (req, res) => {
     const token = generateToken(user._id);
 
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
+      message: 'User registered Successfully',
       token,
+      user: {
+        _id: user._id,
+        firstname: user.name,
+        lastname: user.name,
+        email: user.email,
+      }
     });
   } catch (error) {
     console.error('Error in singupUser:', error.message);
